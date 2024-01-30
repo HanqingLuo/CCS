@@ -1,0 +1,1 @@
+https://CognexAppsHomeTenant2.b2clogin.com/CognexAppsHomeTenant2.onmicrosoft.com/B2C_1A_SIGNUP_SIGNIN_SAML/samlp/metadata
