@@ -12,13 +12,12 @@
     <TenantId>CognexAppsHomeTenant2.onmicrosoft.com</TenantId>
     <PolicyId>B2C_1A_TrustFrameworkLocalization</PolicyId>
   </BasePolicy>
+  
   <BuildingBlocks>
 
   </BuildingBlocks>
 
   <ClaimsProviders>
-
-
     <ClaimsProvider>
       <DisplayName>Local Account SignIn</DisplayName>
       <TechnicalProfiles>
