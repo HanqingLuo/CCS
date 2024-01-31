@@ -5,13 +5,31 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
   TenantId="CognexAppsHomeTenant2.onmicrosoft.com"
-  PolicyId="B2C_1A_signup_signin"
-  PublicPolicyUri="http://CognexAppsHomeTenant2.onmicrosoft.com/B2C_1A_signup_signin">
+  PolicyId="B2C_1A_signup_signin_DomainAllowlist"
+  PublicPolicyUri="http://CognexAppsHomeTenant2.onmicrosoft.com/B2C_1A_signup_signin_DomainAllowlist">
 
   <BasePolicy>
     <TenantId>CognexAppsHomeTenant2.onmicrosoft.com</TenantId>
     <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
   </BasePolicy>
+
+  <BuildingBlocks>
+    <ClaimsSchema>
+      <ClaimType Id="email">
+        <Restriction>
+          <Pattern RegularExpression="^[a-zA-Z0-9.!#$%&amp;'^_`{}~\-]+@(outlook[.]com|live[.]com|gmail[.]com)" HelpText="Please enter a email address from one of the following domains: outlook.com, live.com." />
+        </Restriction>
+      </ClaimType>
+    </ClaimsSchema>
+
+    <Localization>
+      <LocalizedResources Id="api.localaccountsignup.en">
+        <LocalizedStrings>
+          <LocalizedString ElementType="ClaimType" ElementId="email" StringId="PatternHelpText">Please enter a email address from one of the following domains: outlook.com, live.com, or gmail.com.</LocalizedString>
+        </LocalizedStrings>
+      </LocalizedResources>
+    </Localization>
+  </BuildingBlocks>
 
   <RelyingParty>
     <DefaultUserJourney ReferenceId="SignUpOrSignIn" />
