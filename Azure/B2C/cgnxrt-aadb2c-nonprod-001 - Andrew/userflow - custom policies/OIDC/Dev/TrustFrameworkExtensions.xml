@@ -1,0 +1,239 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TrustFrameworkPolicy 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
+  PolicySchemaVersion="0.3.0.0" 
+  TenantId="CognexAppsHomeTenant2.onmicrosoft.com" 
+  PolicyId="B2C_1A_TrustFrameworkExtensions" 
+  PublicPolicyUri="http://CognexAppsHomeTenant2.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions">
+  <BasePolicy>
+    <TenantId>CognexAppsHomeTenant2.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_TrustFrameworkLocalization</PolicyId>
+  </BasePolicy>
+  <BuildingBlocks>
+    <ClaimsSchema>
+      <!-- Define the custom claim for user roles -->
+      <ClaimType Id="userRoles">
+        <DisplayName>User Roles</DisplayName>
+        <DataType>stringCollection</DataType>
+        <UserHelpText>Roles assigned to the user.</UserHelpText>
+      </ClaimType>
+    </ClaimsSchema>
+  </BuildingBlocks>
+  <ClaimsProviders>
+    <ClaimsProvider>
+      <DisplayName>Local Account SignIn</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="login-NonInteractive">
+          <Metadata>
+            <Item Key="client_id">8355f4b3-b048-403c-aa59-dd192d76049e</Item>
+            <Item Key="IdTokenAudience">cc3a4a2e-a231-4717-8c0d-d0709f226dd4</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="8355f4b3-b048-403c-aa59-dd192d76049e" />
+            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="cc3a4a2e-a231-4717-8c0d-d0709f226dd4" />
+          </InputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <!-- Add Azure AD B2C groups as a claims provider -->
+    <ClaimsProvider>
+      <DisplayName>Azure Active Directory</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="AAD-Common">
+          <Metadata>
+            <Item Key="ClientId">8355f4b3-b048-403c-aa59-dd192d76049e</Item>
+            <Item Key="ApplicationObjectId">a4d6b153-d118-43b5-9915-6c71163377b0</Item>
+          </Metadata>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <ClaimsProvider>
+      <DisplayName>Token Issuer</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="UserInfoIssuer">
+          <DisplayName>JSON Issuer</DisplayName>
+          <Protocol Name="None" />
+          <OutputTokenFormat>JSON</OutputTokenFormat>
+          <CryptographicKeys>
+            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+          </CryptographicKeys>
+          <!-- The Below claims are what will be returned on the UserInfo Endpoint if in the Claims Bag-->
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="objectId"/>
+            <InputClaim ClaimTypeReferenceId="givenName"/>
+            <InputClaim ClaimTypeReferenceId="surname"/>
+            <InputClaim ClaimTypeReferenceId="displayName"/>
+            <InputClaim ClaimTypeReferenceId="signInNames.emailAddress"/>
+          </InputClaims>
+        </TechnicalProfile>
+        <TechnicalProfile Id="UserInfoAuthorization">
+          <DisplayName>UserInfo authorization</DisplayName>
+          <Protocol Name="None" />
+          <InputTokenFormat>JWT</InputTokenFormat>
+          <Metadata>
+            <!-- Update the Issuer and Audience below -->
+            <!-- Audience is optional, Issuer is required-->
+            <Item Key="issuer">https://CognexAppsHomeTenant2.b2clogin.com/11111111-1111-1111-1111-111111111111/v2.0/</Item>
+            <Item Key="audience">[ "22222222-2222-2222-2222-222222222222", "33333333-3333-3333-3333-333333333333" ]</Item>
+            <Item Key="client_assertion_type">urn:ietf:params:oauth:client-assertion-type:jwt-bearer</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+          </CryptographicKeys>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
+            <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress" PartnerClaimType="email"/>
+            <!-- Optional claims to read from the access token. -->
+            <!-- <OutputClaim ClaimTypeReferenceId="givenName" PartnerClaimType="given_name"/>
+              <OutputClaim ClaimTypeReferenceId="surname" PartnerClaimType="family_name"/>
+              <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name"/> -->
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+  </ClaimsProviders>
+  <ClaimsTransformations>
+    <!-- Transformation to add user roles claim -->
+    <ClaimsTransformation Id="AddUserRoleClaim" TransformationMethod="AddItemToStringCollection">
+      <InputClaims>
+        <InputClaim ClaimTypeReferenceId="userRoles" TransformationClaimType="inputClaim" />
+      </InputClaims>
+      <InputParameters>
+        <!-- Use a claims resolver to retrieve user roles from groups -->
+        <InputParameter Id="item" DataType="string" Value="{groups.first}" />
+        <InputParameter Id="collection" DataType="stringCollection" Value="userRoles" />
+      </InputParameters>
+      <OutputClaims>
+        <OutputClaim ClaimTypeReferenceId="userRoles" TransformationClaimType="outputClaim" />
+      </OutputClaims>
+    </ClaimsTransformation>
+  </ClaimsTransformations>
+  <RelyingParty>
+    <!-- Your relying party settings here -->
+    <OutputClaims>
+      <!-- Include other output claims as needed -->
+      <OutputClaim ClaimTypeReferenceId="userRoles" />
+    </OutputClaims>
+    <ClaimsTransformations>
+      <!-- Apply the transformation to add user roles claim -->
+      <ClaimsTransformationReference Id="AddUserRoleClaim" />
+    </ClaimsTransformations>
+  </RelyingParty>
+  <!-- <UserJourneys>
+    <UserJourney Id="UserInfoJourney" DefaultCpimIssuerTechnicalProfileReferenceId="UserInfoIssuer">
+      <Authorization>
+        <AuthorizationTechnicalProfiles>
+          <AuthorizationTechnicalProfile ReferenceId="UserInfoAuthorization" />
+        </AuthorizationTechnicalProfiles>
+      </Authorization>
+      <OrchestrationSteps >
+        <OrchestrationStep Order="1" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges UserIdentity="false">
+            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="2" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="UserInfoIssuer" />
+      </OrchestrationSteps>
+    </UserJourney>
+  </UserJourneys> -->
+  <UserJourneys>
+    <UserJourney Id="SignUpOrSignIn">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+          <ClaimsProviderSelections>
+            <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
+          </ClaimsProviderSelections>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="SignUpWithLogonEmailExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <!-- This step reads any user attributes that we may not have received when in the token. -->
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="4" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+      </OrchestrationSteps>
+      <ClientDefinition ReferenceId="DefaultWeb" />
+    </UserJourney>
+    <UserJourney Id="ProfileEdit">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="ClaimsProviderSelection" ContentDefinitionReferenceId="api.idpselections">
+          <ClaimsProviderSelections>
+            <ClaimsProviderSelection TargetClaimsExchangeId="LocalAccountSigninEmailExchange" />
+          </ClaimsProviderSelections>
+        </OrchestrationStep>
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="4" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="B2CUserProfileUpdateExchange" TechnicalProfileReferenceId="SelfAsserted-ProfileUpdate" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="5" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+      </OrchestrationSteps>
+      <ClientDefinition ReferenceId="DefaultWeb" />
+    </UserJourney>
+    <UserJourney Id="PasswordReset">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="PasswordResetUsingEmailAddressExchange" TechnicalProfileReferenceId="LocalAccountDiscoveryUsingEmailAddress" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="NewCredentials" TechnicalProfileReferenceId="LocalAccountWritePasswordUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+      </OrchestrationSteps>
+      <ClientDefinition ReferenceId="DefaultWeb" />
+    </UserJourney>
+    <UserJourney Id="RedeemRefreshToken">
+      <PreserveOriginalAssertion>false</PreserveOriginalAssertion>
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="RefreshTokenSetupExchange" TechnicalProfileReferenceId="RefreshTokenReadAndSetup" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <!-- Extra steps can be added before or after this step for REST API or claims transformation calls-->
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="CheckRefreshTokenDateFromAadExchange" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId-CheckRefreshTokenDate" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+      </OrchestrationSteps>
+    </UserJourney>
+  </UserJourneys>
+</TrustFrameworkPolicy>

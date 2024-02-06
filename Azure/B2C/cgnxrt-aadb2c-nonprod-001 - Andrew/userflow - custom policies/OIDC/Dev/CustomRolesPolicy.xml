@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TrustFrameworkPolicy 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
+  PolicySchemaVersion="0.3.0.0" 
+  TenantId="CognexAppsHomeTenant2.onmicrosoft.com" 
+  PolicyId="B2C_1A_CustomRolesPolicy" 
+  PublicPolicyUri="http://CognexAppsHomeTenant2.onmicrosoft.com/B2C_1A_CustomRolesPolicy">
+  <BasePolicy>
+    <TenantId>CognexAppsHomeTenant2.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_TrustFrameworkLocalization</PolicyId>
+  </BasePolicy>
+  <BuildingBlocks>
+    <!-- Define custom claim for user roles -->
+    <ClaimsSchema>
+      <ClaimType Id="userRoles">
+        <DisplayName>User Roles</DisplayName>
+        <DataType>stringCollection</DataType>
+      </ClaimType>
+    </ClaimsSchema>
+  </BuildingBlocks>
+  <ClaimsProviders>
+    <!-- Define claims provider to fetch user roles -->
+    <ClaimsProvider>
+      <DisplayName>Azure Active Directory</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="AAD-UserReadUsingObjectId">
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="userRoles" />
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+  </ClaimsProviders>
+  <UserJourneys>
+    <!-- Define sign-in user journey -->
+    <UserJourney Id="SignUpOrSignIn">
+      <OrchestrationSteps>
+        <!-- Add steps to sign-in -->
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signupsignin">
+          <!-- Include sign-in technical profile -->
+        </OrchestrationStep>
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <!-- Fetch user roles during sign-in -->
+          <ClaimsExchanges>
+            <ClaimsExchange Id="FetchUserRoles" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <!-- Add other steps -->
+      </OrchestrationSteps>
+    </UserJourney>
+  </UserJourneys>
+  <RelyingParty>
+    <!-- Define token issuance for JWT -->
+    <OutputClaims>
+      <!-- Include custom claims in JWT -->
+      <OutputClaim ClaimTypeReferenceId="userRoles" />
+    </OutputClaims>
+  </RelyingParty>
+</TrustFrameworkPolicy>
