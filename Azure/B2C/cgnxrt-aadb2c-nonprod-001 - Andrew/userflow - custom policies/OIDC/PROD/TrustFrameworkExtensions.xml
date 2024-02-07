@@ -60,7 +60,7 @@
           <Metadata>
             <!-- Update the Issuer and Audience below -->
             <!-- Audience is optional, Issuer is required-->
-            <Item Key="issuer">https://CognexAppsHomeTenant2.b2clogin.com/11111111-1111-1111-1111-111111111111/v2.0/</Item>
+            <Item Key="issuer">https://CognexAppsHomeTenant2.b2clogin.com/e97553b9-2fad-4fb5-ace6-7266975f6b30/v2.0/</Item>
             <Item Key="audience">[ "22222222-2222-2222-2222-222222222222", "33333333-3333-3333-3333-333333333333" ]</Item>
             <Item Key="client_assertion_type">urn:ietf:params:oauth:client-assertion-type:jwt-bearer</Item>
           </Metadata>
@@ -80,7 +80,7 @@
     </ClaimsProvider>
   </ClaimsProviders>
 
-  <!-- <UserJourneys>
+  <UserJourneys>
     <UserJourney Id="UserInfoJourney" DefaultCpimIssuerTechnicalProfileReferenceId="UserInfoIssuer">
       <Authorization>
         <AuthorizationTechnicalProfiles>
@@ -102,115 +102,5 @@
         <OrchestrationStep Order="2" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="UserInfoIssuer" />
       </OrchestrationSteps>
     </UserJourney>
-  </UserJourneys> -->
-
-  <UserJourneys>
-
-    <UserJourney Id="SignUpOrSignIn">
-      <OrchestrationSteps>
-
-        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
-          <ClaimsProviderSelections>
-            <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
-          </ClaimsProviderSelections>
-          <ClaimsExchanges>
-            <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-
-        <OrchestrationStep Order="2" Type="ClaimsExchange">
-          <Preconditions>
-            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
-              <Value>objectId</Value>
-              <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>
-          </Preconditions>
-          <ClaimsExchanges>
-            <ClaimsExchange Id="SignUpWithLogonEmailExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-
-        <!-- This step reads any user attributes that we may not have received when in the token. -->
-        <OrchestrationStep Order="3" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-
-        <OrchestrationStep Order="4" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
-
-      </OrchestrationSteps>
-      <ClientDefinition ReferenceId="DefaultWeb" />
-    </UserJourney>
-
-    <UserJourney Id="ProfileEdit">
-      <OrchestrationSteps>
-
-        <OrchestrationStep Order="1" Type="ClaimsProviderSelection" ContentDefinitionReferenceId="api.idpselections">
-          <ClaimsProviderSelections>
-            <ClaimsProviderSelection TargetClaimsExchangeId="LocalAccountSigninEmailExchange" />
-          </ClaimsProviderSelections>
-        </OrchestrationStep>
-        <OrchestrationStep Order="2" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-        <OrchestrationStep Order="3" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-
-        <OrchestrationStep Order="4" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="B2CUserProfileUpdateExchange" TechnicalProfileReferenceId="SelfAsserted-ProfileUpdate" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-        <OrchestrationStep Order="5" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
-
-      </OrchestrationSteps>
-      <ClientDefinition ReferenceId="DefaultWeb" />
-    </UserJourney>
-
-    <UserJourney Id="PasswordReset">
-      <OrchestrationSteps>
-        <OrchestrationStep Order="1" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="PasswordResetUsingEmailAddressExchange" TechnicalProfileReferenceId="LocalAccountDiscoveryUsingEmailAddress" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-        <OrchestrationStep Order="2" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="NewCredentials" TechnicalProfileReferenceId="LocalAccountWritePasswordUsingObjectId" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-        <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
-      </OrchestrationSteps>
-      <ClientDefinition ReferenceId="DefaultWeb" />
-    </UserJourney>
-
-    <UserJourney Id="RedeemRefreshToken">
-      <PreserveOriginalAssertion>false</PreserveOriginalAssertion>
-      <OrchestrationSteps>
-        <OrchestrationStep Order="1" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="RefreshTokenSetupExchange" TechnicalProfileReferenceId="RefreshTokenReadAndSetup" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-        
-        <!-- Extra steps can be added before or after this step for REST API or claims transformation calls-->
-
-        <OrchestrationStep Order="2" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="CheckRefreshTokenDateFromAadExchange" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId-CheckRefreshTokenDate" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-        <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
-      </OrchestrationSteps>
-    </UserJourney>
-    
   </UserJourneys>
-
-
 </TrustFrameworkPolicy>
