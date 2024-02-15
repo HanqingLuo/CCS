@@ -1,16 +1,10 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "CloudFormation Template to create an S3 bucket"
 
-Parameters:
-  BucketName:
-    Description: "Cloudtrail-rapid7"
-    Type: String
-
 Resources:
   S3Bucket:
-    Type: "AWS::S3::Bucket"
+    Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Ref BucketName
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -22,14 +16,5 @@ Resources:
         RestrictPublicBuckets: true
       VersioningConfiguration:
         Status: Enabled
-      Tags:
-        - Key: Name
-          Value: !Ref BucketName
-      Region: "us-east-1"
 
-Output:
-  S3Bucket:
-    Description: S3 bucket created from a Cloudformation Template
-    Value: !Ref S3Bucket
 
-  
