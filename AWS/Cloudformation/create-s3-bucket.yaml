@@ -1,14 +1,14 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Description: 'CloudFormation Template to create an S3 bucket with specific settings and apply a bucket policy'
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudFormation Template to create an S3 bucket"
 
 Parameters:
   BucketName:
-    Description: 'Cloudtrail-rapid7'
+    Description: "Cloudtrail-rapid7"
     Type: String
 
 Resources:
   S3Bucket:
-    Type: 'AWS::S3::Bucket'
+    Type: "AWS::S3::Bucket"
     Properties:
       BucketName: !Ref BucketName
       BucketEncryption:
@@ -20,53 +20,16 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
       Tags:
         - Key: Name
           Value: !Ref BucketName
-      Region: 'us-east-1'
+      Region: "us-east-1"
 
-  S3BucketPolicy:
-    Type: 'AWS::S3::BucketPolicy'
-    Properties:
-      Bucket: !Ref S3Bucket
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Sid: 'AWSCloudTrailAclCheck20150319'
-            Effect: 'Allow'
-            Principal:
-              Service: 'cloudtrail.amazonaws.com'
-            Action: 's3:GetBucketAcl'
-            Resource: !Sub 'arn:aws:s3:::${BucketName}'
-            Condition:
-              StringEquals:
-                'AWS:SourceArn': 'arn:aws:cloudtrail:us-east-1:505683837388:trail/Rapid7'
-          - Sid: 'AWSCloudTrailWrite20150319'
-            Effect: 'Allow'
-            Principal:
-              Service: 'cloudtrail.amazonaws.com'
-            Action: 's3:PutObject'
-            Resource: !Sub 'arn:aws:s3:::${BucketName}/AWSLogs/505683837388/*'
-            Condition:
-              StringEquals:
-                'AWS:SourceArn': 'arn:aws:cloudtrail:us-east-1:505683837388:trail/Rapid7'
-                's3:x-amz-acl': 'bucket-owner-full-control'
-          - Sid: 'AWSCloudTrailAclCheck20150319HL'
-            Effect: 'Allow'
-            Principal:
-              Service: 'cloudtrail.amazonaws.com'
-            Action: 's3:GetBucketAcl'
-            Resource: !Sub 'arn:aws:s3:::${BucketName}'
-            Condition:
-              StringEquals:
-                'AWS:SourceArn': 'arn:aws:cloudtrail:us-east-1:505683837388:trail/Rapid7-HL'
-          - Sid: 'AWSCloudTrailWrite20150319HL'
-            Effect: 'Allow'
-            Principal:
-              Service: 'cloudtrail.amazonaws.com'
-            Action: 's3:PutObject'
-            Resource: !Sub 'arn:aws:s3:::${BucketName}/AWSLogs/505683837388/*'
-            Condition:
-              StringEquals:
-                'AWS:SourceArn': 'arn:aws:cloudtrail:us-east-1:505683837388:trail/Rapid7-HL'
-                's3:x-amz-acl': 'bucket-owner-full-control'
+Output:
+  S3Bucket:
+    Description: S3 bucket created from a Cloudformation Template
+    Value: !Ref S3Bucket
+
+  
