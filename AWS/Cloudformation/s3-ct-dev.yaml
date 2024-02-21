@@ -5,7 +5,6 @@ Description: 'The AWS CloudFormation template creates KMS encryption keys for Cl
 Resources:
     # Create S3 bucket for log storage
     CloudTrailS3Bucket:
-      DependsOn:
       Type: AWS::S3::Bucket
       DeletionPolicy: Retain
       Properties:
