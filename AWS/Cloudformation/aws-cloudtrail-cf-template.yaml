@@ -115,6 +115,30 @@ Resources:
         TargetKeyId:
           Ref: s3cloudtrailKey
 
+    # Create IAM user and permission to access S3
+    MyIAMUser:
+      Type: AWS::IAM::User
+      Properties:
+        UserName: s3-access-user
+
+    MyIAMUserPolicy:
+      Type: AWS::IAM::Policy
+      DependsOn: CloudTrailS3Bucket
+      Properties:
+        PolicyName: my-s3-access-policy
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:List*
+                - s3:Get*
+              Resource: 
+                - !Sub arn:aws:s3:::${CloudTrailS3Bucket}
+                - !Sub arn:aws:s3:::${CloudTrailS3Bucket}/*
+        Users:
+          - !Ref MyIAMUser
+
     # Create S3 bucket for log storage
     CloudTrailS3Bucket:
       DependsOn:
@@ -132,6 +156,7 @@ Resources:
     CloudTrailBucketPolicy:
       DependsOn:
           - CloudTrailS3Bucket
+          - MyIAMUserPolicy
       Type: AWS::S3::BucketPolicy
       Properties:
         Bucket: !Ref CloudTrailS3Bucket
@@ -153,30 +178,6 @@ Resources:
               Condition:
                 StringEquals:
                   's3:x-amz-acl': 'bucket-owner-full-control'
-
-    # Create IAM user and permission to access S3
-    MyIAMUser:
-      Type: AWS::IAM::User
-      Properties:
-        UserName: s3-access-user
-
-    MyIAMUserPolicy:
-      Type: AWS::IAM::Policy
-      DependsOn: CloudTrailS3Bucket
-      Properties:
-        PolicyName: my-s3-access-policy
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Action:
-                - s3:ListBucket
-                - s3:GetObject
-              Resource: 
-                - !Sub arn:aws:s3:::${CloudTrailS3Bucket}
-        Users:
-          - !Ref MyIAMUser
-
 
     # Enable CloudTrail
     MyCloudTrail:

@@ -1,10 +1,12 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "CloudFormation Template to create an S3 bucket"
+Description: "CloudFormation Template to create an S3 bucket with custom bucket name"
+
 
 Resources:
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
+      BucketName: rapid7-s3-trail
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -16,5 +18,7 @@ Resources:
         RestrictPublicBuckets: true
       VersioningConfiguration:
         Status: Enabled
+
+        
 
 
