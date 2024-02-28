@@ -154,7 +154,7 @@ Resources:
                 StringEquals:
                   's3:x-amz-acl': 'bucket-owner-full-control'
 
-    # Create IAM user and permission to access S3
+    # Create IAM user and permission to access S3 and S3 content
     MyIAMUser:
       Type: AWS::IAM::User
       Properties:
